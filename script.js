@@ -15300,59 +15300,65 @@ const msOffset = Date.now() - offsetFromDate;
 const dayOffset = msOffset / 1000 / 60 / 60 / 24;
 const targetWord = targetWords[Math.floor(dayOffset)];
 
-// findPossibilities(["r", "", "", "", "e"], ["u"], ["c","a","n","s","v","o","g"]);
+findPossibilities(["s", "", "e", "", ""], ["e"], ["c", "r", "a", "n"]);
 
 function findPossibilities(greenLetters, yellowLetters, darkGrayLetters) {
   let matches = [];
+  const numGreenLetters = greenLetters.filter((letter) => letter !== "");
+  //Iterate over each possible word
   targetWords.forEach((targetWord) => {
-    if (isMatch(targetWord, greenLetters, yellowLetters)) {
+    let matchGreen = false;
+    let matchYellow = false;
+    let matchGray = false;
+
+    //Find words that match green letters (letters guessed correctly and in the correct place)
+    let i = 0;
+    let numLettersMatching = 0;
+    for (i; i < targetWord.length; i++) {
+      const targetWordLetter = targetWord.substr(i, 1);
+
+      //Check green letter
+      if (greenLetters[i] !== "" && targetWordLetter === greenLetters[i]) {
+        numLettersMatching++;
+        continue;
+      }
+    }
+
+    matchGreen = numLettersMatching === numGreenLetters.length;
+
+    if (matchGreen) {
+      //Determine if word contains yellow letters (letters in word but in wrong place)
+      let y = 0;
+      let numYellowMatches = 0;
+      for (y; y < yellowLetters.length; y++) {
+        if (targetWord.indexOf(yellowLetters[y]) !== -1) {
+          numYellowMatches++;
+        }
+      }
+
+      matchYellow = numYellowMatches === yellowLetters.length;
+
+      if (matchYellow) {
+        //See if word contains letters already guessed
+        if (darkGrayLetters.length > 0) {
+          matchGray = true;
+          let g = 0;
+          for (g; g < darkGrayLetters.length; g++) {
+            if (targetWord.indexOf(darkGrayLetters[g]) !== -1) {
+              matchGray = false;
+            }
+          }
+        } else {
+          matchGray = true;
+        }
+      }
+    }
+
+    if (matchGreen && matchYellow && matchGray) {
       matches.push(targetWord);
     }
-    // const greenMatches = matchGreenLetters(targetWord, greenLetters);
-    // let i = 0;
-    // for (i; i < targetWord.length; i++) {
-    //   const targetWordLetter = targetWord.substr(i, 1);
-    //   if (targetWordLetter === greenLetters[i]) {
-    //     yellowLetters.forEach((yellowLetter) => {
-    //       if (targetWord.indexOf(yellowLetter) > 0) {
-
-    //         console.log(targetWord);
-
-    //       }
-    //     });
-    //   }
-    // }
   });
   console.log(matches);
-}
-
-function isMatch(targetWord, greenLetters, yellowLetters) {
-  const isMatchGreen = matchGreenLetters(targetWord, greenLetters, yellowLetters);
-
-  return isMatchGreen;
-}
-
-function matchGreenLetters(targetWord, greenLetters, yellowLetters) {
-  let numMatches = 0;
-  const notEmptyGreenLetters = greenLetters.filter((letter) => letter !== "");
-
-  let i = 0;
-  for (i; i < targetWord.length; i++) {
-    const targetWordLetter = targetWord.substr(i, 1);
-    if (targetWordLetter === greenLetters[i]) {
-      numMatches++;
-    }
-  }
-
-  if (numMatches >= notEmptyGreenLetters.length) {
-    // yellowLetters.forEach((yellowLetter) => {
-    //   if (targetWord.indexOf(yellowLetter) > 0) {
-    return true;
-    // }
-    // });
-  }
-
-  return false;
 }
 
 startInteraction();
